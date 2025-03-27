@@ -1,0 +1,19 @@
+services:
+  postgresqlClient:
+    image: postgres:16
+    ports:
+      - "6432:5432"
+    environment:
+      POSTGRES_DB: client
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgresqlClient:/var/lib/postgresql/data
+    networks:
+      - backend2
+
+volumes:
+  postgresqlClient: { }
+
+networks:
+  backend2: { }
