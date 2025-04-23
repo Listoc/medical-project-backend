@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.dream.team.client.service.db.enitity.User;
 import ru.dream.team.client.service.model.UserCreds;
@@ -22,10 +24,14 @@ public class LoginController {
 
     @PostMapping("/login")
     @Operation(summary = "Получить jwt-токен")
-    public ResponseEntity<?> getToken(@RequestBody UserCreds userCreds) {
+    public ResponseEntity<String> getToken(@RequestBody UserCreds userCreds) {
         var creds = new UsernamePasswordAuthenticationToken(userCreds.getUsername(), userCreds.getPassword());
-
-        var auth = authenticationManager.authenticate(creds);
+        Authentication auth;
+        try {
+            auth = authenticationManager.authenticate(creds);
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.badRequest().body("Wrong credentials");
+        }
 
         String jwts = jwtService.getToken(auth.getName());
 

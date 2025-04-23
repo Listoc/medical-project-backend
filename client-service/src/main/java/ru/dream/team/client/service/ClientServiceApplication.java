@@ -21,10 +21,12 @@ public class ClientServiceApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-//		var user = new User();
-//		user.setPassword(passwordEncoder.encode("admin"));
-//		user.setUsername("admin");
-//		user.setRole(User.Role.ROLE_ADMIN);
-//		userRepository.save(user);
+		var user = new User();
+		user.setPassword(passwordEncoder.encode("admin"));
+		user.setUsername("admin");
+		user.setRole(User.Role.ROLE_ADMIN);
+		if (userRepository.findByUsername("admin").isEmpty()) {
+			userRepository.save(user);
+		}
 	}
 }

@@ -2,16 +2,17 @@ package ru.dream.team.client.service.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.dream.team.client.service.db.enitity.User;
+import ru.dream.team.client.service.db.enitity.Doctor;
+import ru.dream.team.client.service.db.enitity.Patient;
 import ru.dream.team.client.service.model.AddDoctorRequest;
 import ru.dream.team.client.service.model.AddDoctorToPatientRequest;
 import ru.dream.team.client.service.model.AddPatientRequest;
 import ru.dream.team.client.service.model.ChangeCredentialsRequest;
 import ru.dream.team.client.service.service.AdminService;
+
+import java.util.List;
 
 @RestController
 public class AdminController {
@@ -47,10 +48,10 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/user")
+    @DeleteMapping("/user/{username}")
     @Operation(summary = "Удалить уз")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> deleteUser(@RequestBody String username) {
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
         adminService.deleteUser(username);
         return ResponseEntity.ok().build();
     }
@@ -74,21 +75,21 @@ public class AdminController {
     @GetMapping("/patients")
     @Operation(summary = "Получить данные всех пациентов")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> getPatients() {
+    public ResponseEntity<List<Patient>> getPatients() {
         return ResponseEntity.ok(adminService.getPatients());
     }
 
     @GetMapping("/doctors")
     @Operation(summary = "Получить данные всех врачей")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> getDoctor() {
+    public ResponseEntity<List<Doctor>> getDoctor() {
         return ResponseEntity.ok(adminService.getDoctors());
     }
 
     @GetMapping("/user")
     @Operation(summary = "Получить всех пользователей")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> getUsers() {
+    public ResponseEntity<List<String>> getUsers() {
         return ResponseEntity.ok(adminService.getUsernames());
     }
 }
