@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @Table(name = "user_credentials")
-public class User implements UserDetails {
+public class UserDto implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -35,12 +35,12 @@ public class User implements UserDetails {
     @ToString.Exclude
     @OneToOne
     @JoinColumn(name = "patient_id")
-    private Patient patient;
+    private PatientDto patientDto;
 
     @ToString.Exclude
     @OneToOne
     @JoinColumn(name = "doctor_id")
-    private Doctor doctor;
+    private DoctorDto doctorDto;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
