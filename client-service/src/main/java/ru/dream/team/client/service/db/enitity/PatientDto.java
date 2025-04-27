@@ -1,6 +1,9 @@
 package ru.dream.team.client.service.db.enitity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,15 +11,15 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-public class Patient {
+@Table(name = "patient")
+@JsonView({PatientDto.class, DoctorDto.class})
+public class PatientDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "patient_id")
@@ -42,11 +45,11 @@ public class Patient {
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "doctor_id")
-    @JsonIgnore
-    private Doctor doctor;
+    @JsonView(PatientDto.class)
+    private DoctorDto doctor;
 
-    public void addDoctor(Doctor doctor) {
-        this.setDoctor(doctor);
-        doctor.getPatients().add(this);
+    public void addDoctor(DoctorDto doctorDto) {
+        this.setDoctor(doctorDto);
+        doctorDto.getPatients().add(this);
     }
 }

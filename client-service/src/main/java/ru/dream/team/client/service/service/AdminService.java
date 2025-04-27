@@ -1,150 +1,135 @@
 package ru.dream.team.client.service.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.dream.team.client.service.db.enitity.Doctor;
-import ru.dream.team.client.service.db.enitity.Patient;
-import ru.dream.team.client.service.db.enitity.User;
+import ru.dream.team.client.service.db.enitity.DoctorDto;
+import ru.dream.team.client.service.db.enitity.PatientDto;
+import ru.dream.team.client.service.db.enitity.UserDto;
 import ru.dream.team.client.service.db.repository.DoctorRepository;
 import ru.dream.team.client.service.db.repository.PatientRepository;
 import ru.dream.team.client.service.db.repository.UserRepository;
+import ru.dream.team.client.service.mapper.UserMapper;
+import ru.dream.team.client.service.model.DoctorInfo;
+import ru.dream.team.client.service.model.PatientInfo;
+import ru.dream.team.client.service.model.UserCreds;
+import ru.dream.team.client.service.model.admin.response.UserResponse;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public AdminService(PatientRepository patientRepository, DoctorRepository doctorRepository, UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder) {
-        this.patientRepository = patientRepository;
-        this.doctorRepository = doctorRepository;
-        this.userRepository = userRepository;
-        this.passwordEncoder = bCryptPasswordEncoder;
+    @Transactional
+    public DoctorDto addDoctor(DoctorInfo doctorInfo, UserCreds creds) {
+        var doctorDto = doctorRepository.save(userMapper.mapDoctorReqToDto(doctorInfo));
+
+        var userDto = new UserDto();
+        userDto.setDoctorDto(doctorDto);
+        userDto.setRole(UserDto.Role.ROLE_DOCTOR);
+        userDto.setPassword(passwordEncoder.encode(creds.getPassword()));
+        userDto.setUsername(creds.getUsername());
+        userRepository.save(userDto);
+
+        return doctorDto;
     }
 
     @Transactional
-    public String addDoctor(Doctor doctor, String username, String password) {
-        User user;
+    public PatientDto addPatient(PatientInfo patientInfo, UserCreds userCreds) {
+        var patientDto = patientRepository.save(userMapper.mapPatientReqToPatientDto(patientInfo));
 
-        var userFromDB = userRepository.findByUsername(username);
+        var userDto = new UserDto();
+        userDto.setPatientDto(patientDto);
+        userDto.setRole(UserDto.Role.ROLE_PATIENT);
+        userDto.setPassword(passwordEncoder.encode(userCreds.getPassword()));
+        userDto.setUsername(userCreds.getUsername());
 
-        if (userFromDB.isPresent()) {
-            return "username";
-        }
+        userRepository.save(userDto);
 
-        var doctorFromDB = doctorRepository.findByEmail(doctor.getEmail());
-
-        if (doctorFromDB.isPresent()) {
-            return "email";
-        }
-
-        doctorRepository.save(doctor);
-        user = new User();
-        user.setDoctor(doctor);
-        user.setRole(User.Role.ROLE_DOCTOR);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setUsername(username);
-        userRepository.save(user);
-
-        return "good";
+        return patientDto;
     }
 
     @Transactional
-    public String addPatient(Patient patient, String username, String password) {
-        User user;
+    public void deleteUser(String username) {
+        var user = userRepository.findByUsername(username);
 
-        var userFromDB = userRepository.findByUsername(username);
-
-        if (userFromDB.isPresent()) {
-            return "username";
+        if (user.isPresent()) {
+            try {
+                switch (user.get().getRole()) {
+                    case ROLE_ADMIN:
+                        userRepository.delete(user.get());
+                        break;
+                    case ROLE_PATIENT:
+                        userRepository.delete(user.get());
+                        patientRepository.delete(user.get().getPatientDto());
+                        break;
+                    case ROLE_DOCTOR:
+                        userRepository.delete(user.get());
+                        doctorRepository.delete(user.get().getDoctorDto());
+                        break;
+                }
+            } catch (Exception ignore) { }
         }
+    }
 
-        var patientFromDB = patientRepository.findByEmail(patient.getEmail());
+    @Transactional
+    public void addDoctorToPatient(long patientId, long doctorId) {
+        var patient = patientRepository
+            .findById(patientId)
+            .orElseThrow(() -> new IllegalArgumentException("Не найден пациент с таким id"));
+        var doctor = doctorRepository
+            .findById(doctorId)
+            .orElseThrow(() -> new IllegalArgumentException("Не найден врач с таким id"));
 
-        if (patientFromDB.isPresent()) {
-            return "email";
-        }
+        patient.addDoctor(doctor);
 
         patientRepository.save(patient);
-        user = new User();
-        user.setPatient(patient);
-        user.setRole(User.Role.ROLE_PATIENT);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setUsername(username);
-
-        userRepository.save(user);
-
-        return "good";
     }
 
     @Transactional
-    public List<String> getUsernames() {
-        return userRepository.findAll().stream().filter(user -> !user.getRole().equals(User.Role.ROLE_ADMIN)).map(User::getUsername).toList();
-    }
+    public String changeUserCredentials(String currentUsername, String newUsername, String newPassword) {
+        var user = userRepository
+            .findByUsername(currentUsername)
+            .orElseThrow(() -> new UsernameNotFoundException("Пользователь с таким username не найден"));
 
-    @Transactional
-    public boolean addDoctorToPatient(long patientId, long doctorId) {
-        var patient = patientRepository.findById(patientId);
-        var doctor = doctorRepository.findById(doctorId);
-
-        if (patient.isEmpty()) {
-            return false;
-        }
-
-        if (doctor.isEmpty()) {
-            return false;
-        }
-
-        patient.get().addDoctor(doctor.get());
-
-        doctorRepository.save(doctor.get());
-        patientRepository.save(patient.get());
-
-        return true;
-    }
-
-    @Transactional
-    public boolean changeUserCredentials(String currentUsername, String newUsername, String newPassword) {
-        var user = userRepository.findByUsername(currentUsername).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        if (newUsername != null) {
+        if (newUsername != null && !newUsername.isBlank()) {
             user.setUsername(newUsername);
         }
 
-        if (newPassword != null) {
+        if (newPassword != null && !newPassword.isBlank()) {
             user.setPassword(passwordEncoder.encode(newPassword));
         }
 
-        userRepository.save(user);
+        user = userRepository.save(user);
 
-        return true;
+        return user.getUsername();
     }
 
     @Transactional
-    public boolean deleteUser(String username) {
-        var user = userRepository.findByUsername(username);
-
-        if (user.isPresent() && user.get().getRole() == User.Role.ROLE_ADMIN) {
-            return false;
-        }
-
-        user.ifPresent(userRepository::delete);
-
-        return true;
+    public List<UserResponse> getUsers() {
+        return userRepository
+            .findAll()
+            .stream()
+            .filter(user -> !user.getRole().equals(UserDto.Role.ROLE_ADMIN))
+            .map(userMapper::mapUserDtoToUserResponse)
+            .toList();
     }
 
     @Transactional
-    public List<Patient> getPatients() {
+    public List<PatientDto> getPatients() {
         return patientRepository.findAll();
     }
 
     @Transactional
-    public List<Doctor> getDoctors() {
+    public List<DoctorDto> getDoctors() {
         return doctorRepository.findAll();
     }
 }

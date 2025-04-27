@@ -1,6 +1,8 @@
 package ru.dream.team.client.service.db.enitity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
-public class Doctor {
+@Table(name = "doctor")
+@JsonView({DoctorDto.class, PatientDto.class})
+public class DoctorDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "doctor_id")
@@ -42,7 +46,7 @@ public class Doctor {
     private String category;
 
     @OneToMany(mappedBy = "doctor")
-    @JsonIgnore
     @ToString.Exclude
-    private List<Patient> patients = new ArrayList<>();
+    @JsonView(DoctorDto.class)
+    private List<PatientDto> patients = new ArrayList<>();
 }
