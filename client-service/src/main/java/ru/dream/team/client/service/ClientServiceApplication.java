@@ -46,7 +46,7 @@ public class ClientServiceApplication implements CommandLineRunner {
 			user.setRole(UserDto.Role.ROLE_PATIENT);
 
 			var patientDto = new PatientDto();
-			patientDto.setEmail("patient@email.com");
+			patientDto.setEmail("mestis0408@email.com");
 			patientDto.setFirstName("Вася");
 			patientDto.setLastName("Пупкин");
 			patientDto.setMiddleName("Васильевич");
@@ -66,7 +66,7 @@ public class ClientServiceApplication implements CommandLineRunner {
 			user.setRole(UserDto.Role.ROLE_DOCTOR);
 
 			var doctorDto = new DoctorDto();
-			doctorDto.setEmail("doctor@email.com");
+			doctorDto.setEmail("mestis0408@email.com");
 			doctorDto.setFirstName("Иван");
 			doctorDto.setLastName("Иванов");
 			doctorDto.setMiddleName("Иванович");

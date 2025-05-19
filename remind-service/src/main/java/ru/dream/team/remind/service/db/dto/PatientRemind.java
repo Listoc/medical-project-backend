@@ -20,8 +20,6 @@ public class PatientRemind {
 
     private OffsetTime remindTime;
 
-    private OffsetDateTime lastSendAt;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id", referencedColumnName = "patientId")
     private Patient patient;

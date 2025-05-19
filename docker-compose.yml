@@ -25,6 +25,19 @@ services:
     networks:
       - backend2
 
+  postgresqlMessenger:
+    image: postgres:16
+    ports:
+      - "6434:5432"
+    environment:
+      POSTGRES_DB: messenger
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgresqlMessenger:/var/lib/postgresql/data
+    networks:
+      - backend2
+
   zoo:
     image: confluentinc/cp-zookeeper:7.9.0
     hostname: zoo
@@ -52,22 +65,17 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
       KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
-      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zoo
     volumes:
       - kafka:/var/lib/kafka/data
+    restart: on-failure
 
 volumes:
   postgresqlClient: { }
   postgresqlReminder: { }
+  postgresqlMessenger: { }
   zoo: { }
   kafka: { }
 

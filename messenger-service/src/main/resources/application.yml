@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: messenger-service
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/master.xml
+  datasource:
+    url: jdbc:postgresql://localhost:6434/messenger?stringtype=unspecified
+    username: postgres
+    password: postgres
+
+server:
+  port: 8084
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui

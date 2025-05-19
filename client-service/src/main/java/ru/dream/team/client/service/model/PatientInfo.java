@@ -1,10 +1,13 @@
 package ru.dream.team.client.service.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import ru.dream.team.client.service.controller.AdminController;
+import ru.dream.team.client.service.controller.PatientController;
 import ru.dream.team.client.service.db.enitity.Gender;
 
 import java.time.LocalDate;

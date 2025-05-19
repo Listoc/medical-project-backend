@@ -14,6 +14,7 @@ import ru.dream.team.remind.service.model.RemindResponse;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -75,7 +76,11 @@ public class RemindService {
 
     @Transactional
     public List<RemindResponse> getPatientReminds(Long id) {
-        var patient = patientRepository.findById(id).orElseThrow();
+        var patient = patientRepository.findById(id).orElse(null);
+
+        if (patient == null) {
+            return new ArrayList<>();
+        }
 
         return patient.getPatientReminds()
                 .stream()

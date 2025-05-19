@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: email-sender
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: x.ray.express.reminder@gmail.com
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8082
+

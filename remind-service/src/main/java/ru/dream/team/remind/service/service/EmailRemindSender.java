@@ -14,11 +14,6 @@ public class EmailRemindSender {
     private final RemindService remindService;
     private final KafkaTemplate<String, EmailRequest> emailKafkaTemplate;
 
-    @Transactional
-    public void sendEmail(EmailRequest request) {
-        emailKafkaTemplate.send("email", request);
-    }
-
     public void remind(OffsetTime remindTime) {
         var reminds = remindService.getReminds(remindTime);
         for (var remind : reminds) {

@@ -17,7 +17,7 @@ public class RemindController {
     private final RemindService remindService;
 
     @GetMapping("/remind/{id}")
-    @Operation(summary = "Получить все уведомления пациента")
+    @Operation(summary = "Получить все уведомления пациента (по id пациента)")
     public List<RemindResponse> getReminds(@PathVariable Long id) {
         return remindService.getPatientReminds(id);
     }
@@ -29,7 +29,7 @@ public class RemindController {
     }
 
     @DeleteMapping("/remind/{id}")
-    @Operation(summary = "Удалить уведомление по id")
+    @Operation(summary = "Удалить уведомление по id уведомления")
     public void deleteRemind(@PathVariable Long id) {
         remindService.deleteRemind(id);
     }
