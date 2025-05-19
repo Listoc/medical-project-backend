@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: remind-service
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/master.xml
+  datasource:
+    url: jdbc:postgresql://localhost:6433/reminder?stringtype=unspecified
+    username: postgres
+    password: postgres
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+server:
+  port: 8081
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
+app:
+  scheduler:
+    interval: 20s

@@ -12,8 +12,72 @@ services:
     networks:
       - backend2
 
+  postgresqlReminder:
+    image: postgres:16
+    ports:
+      - "6433:5432"
+    environment:
+      POSTGRES_DB: reminder
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgresqlReminder:/var/lib/postgresql/data
+    networks:
+      - backend2
+
+  postgresqlMessenger:
+    image: postgres:16
+    ports:
+      - "6434:5432"
+    environment:
+      POSTGRES_DB: messenger
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgresqlMessenger:/var/lib/postgresql/data
+    networks:
+      - backend2
+
+  zoo:
+    image: confluentinc/cp-zookeeper:7.9.0
+    hostname: zoo
+    container_name: zoo
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zoo:2888:3888
+    volumes:
+      - zoo:/var/lib/zookeeper
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.0
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9999:9999"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zoo
+    volumes:
+      - kafka:/var/lib/kafka/data
+    restart: on-failure
+
 volumes:
   postgresqlClient: { }
+  postgresqlReminder: { }
+  postgresqlMessenger: { }
+  zoo: { }
+  kafka: { }
 
 networks:
   backend2: { }
