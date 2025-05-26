@@ -38,6 +38,19 @@ services:
     networks:
       - backend2
 
+  postgresqlImage:
+    image: postgres:16
+    ports:
+      - "6435:5432"
+    environment:
+      POSTGRES_DB: image
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgresqlImage:/var/lib/postgresql/data
+    networks:
+      - backend2
+
   zoo:
     image: confluentinc/cp-zookeeper:7.9.0
     hostname: zoo
@@ -76,6 +89,7 @@ volumes:
   postgresqlClient: { }
   postgresqlReminder: { }
   postgresqlMessenger: { }
+  postgresqlImage: { }
   zoo: { }
   kafka: { }
 

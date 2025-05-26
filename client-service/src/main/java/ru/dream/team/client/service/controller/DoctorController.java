@@ -8,8 +8,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.dream.team.client.service.db.enitity.DoctorDto;
 import ru.dream.team.client.service.db.enitity.PatientDto;
+import ru.dream.team.client.service.model.image.ImageDto;
 import ru.dream.team.client.service.model.message.AddMessageRequest;
 import ru.dream.team.client.service.model.message.MessageResponse;
 import ru.dream.team.client.service.service.DoctorService;
@@ -44,5 +46,11 @@ public class DoctorController {
     @Operation(summary = "Получить информацию о враче по jwt-токену")
     public DoctorDto getDoctorInfo(HttpServletRequest request) {
         return doctorService.getDoctorInfo(jwtService.getAuthUser(request));
+    }
+
+    @GetMapping("/image")
+    @Operation(summary = "Загрузить снимки пациента")
+    public List<ImageDto> addImage(@RequestParam("patientId") long patientId, HttpServletRequest request) {
+        return doctorService.getImages(jwtService.getAuthUser(request), patientId);
     }
 }
