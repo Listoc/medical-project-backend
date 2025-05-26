@@ -9,9 +9,11 @@ import ru.dream.team.client.service.db.enitity.PatientDto;
 import ru.dream.team.client.service.db.repository.DoctorRepository;
 import ru.dream.team.client.service.db.repository.PatientRepository;
 import ru.dream.team.client.service.db.repository.UserRepository;
+import ru.dream.team.client.service.model.image.ImageDto;
 import ru.dream.team.client.service.model.message.AddMessageRequest;
 import ru.dream.team.client.service.model.message.MessageResponse;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -20,6 +22,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
     private final MessageApiService messageApiService;
+    private final ImageApiService imageApiService;
 
     @Transactional
     public DoctorDto getDoctorInfo(String username) {
@@ -47,6 +50,21 @@ public class DoctorService {
     public List<MessageResponse> getMessages(String username, Long patientId) {
         var doctor = userRepository.findByUsername(username).orElseThrow().getDoctorDto();
 
+        if (doctor.getPatients().stream().filter(patient -> patient.getId() == patientId).findAny().isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return messageApiService.getMessages(patientId, doctor.getId());
+    }
+
+    @Transactional
+    public List<ImageDto> getImages(String username, Long patientId) {
+        var doctor = userRepository.findByUsername(username).orElseThrow().getDoctorDto();
+
+        if (doctor.getPatients().stream().filter(patient -> patient.getId() == patientId).findAny().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return imageApiService.getImages(patientId);
     }
 }

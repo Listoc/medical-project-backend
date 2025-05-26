@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.dream.team.client.service.db.enitity.PatientDto;
 import ru.dream.team.client.service.db.repository.PatientRepository;
 import ru.dream.team.client.service.db.repository.UserRepository;
@@ -24,6 +25,7 @@ public class PatientService {
     private final UserRepository userRepository;
     private final RemindApiService remindApiService;
     private final MessageApiService messageApiService;
+    private final ImageApiService imageApiService;
 
     @Transactional
     public PatientDto getPatientInfo(String username) {
@@ -92,5 +94,12 @@ public class PatientService {
         var patient = userRepository.findByUsername(username).orElseThrow().getPatientDto();
 
         return messageApiService.getMessages(patient.getId(), patient.getDoctor().getId());
+    }
+
+    @Transactional
+    public void addImage(MultipartFile image, String username) {
+        var patient = userRepository.findByUsername(username).orElseThrow().getPatientDto();
+
+        imageApiService.addImage(image, patient.getId(), patient.getDoctor().getEmail());
     }
 }

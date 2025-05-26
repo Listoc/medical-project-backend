@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: image-service
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/master.xml
+  datasource:
+    url: jdbc:postgresql://localhost:6435/image?stringtype=unspecified
+    username: postgres
+    password: postgres
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8085
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui

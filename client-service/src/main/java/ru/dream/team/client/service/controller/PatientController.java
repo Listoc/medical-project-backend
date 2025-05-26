@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.dream.team.client.service.db.enitity.DoctorDto;
 import ru.dream.team.client.service.db.enitity.PatientDto;
 import ru.dream.team.client.service.model.PatientInfo;
@@ -81,5 +82,11 @@ public class PatientController {
     @Operation(summary = "Получить уведомления пациента")
     public List<RemindResponse> getReminds(HttpServletRequest request) {
         return patientService.getReminds(jwtService.getAuthUser(request));
+    }
+
+    @PostMapping("/image")
+    @Operation(summary = "Загрузить снимок")
+    public void addImage(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
+        patientService.addImage(image, jwtService.getAuthUser(request));
     }
 }

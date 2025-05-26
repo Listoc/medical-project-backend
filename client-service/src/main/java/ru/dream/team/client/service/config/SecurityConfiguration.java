@@ -61,6 +61,8 @@ public class SecurityConfiguration {
                     .requestMatchers("/remind/.*").hasAnyRole("PATIENT")
                     .requestMatchers("/doctor/message").hasAnyRole("DOCTOR")
                     .requestMatchers(HttpMethod.GET, "/doctor").hasAnyRole("DOCTOR")
+                    .requestMatchers(HttpMethod.GET, "/image").hasAnyRole("DOCTOR")
+                    .requestMatchers(HttpMethod.POST, "/image").hasAnyRole("PATIENT")
                     .requestMatchers("/login").permitAll()
                     .requestMatchers("/swagger-ui/index.html", "/swagger-ui").permitAll()
                     .anyRequest().permitAll()
